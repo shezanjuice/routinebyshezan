@@ -1,5 +1,5 @@
 const sheetId = "1vJQVPX0-YypjwBAoiFcMNofKR91X8Zt57NAKlXrUre4";
-const apiKey = "a5385f05f1e3a26ce479b88f150164478f5d2462";
+const apiKey = "AIzaSyDTnnNd5FAdYg10hrcZLU1y0VupuUTmK9k";
 const routineRange = "Routine!A1:Z1000";
 
 async function fetchRoutineData() {
