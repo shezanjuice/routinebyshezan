@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Routine App</title>
+</head>
+<body>
+    <h1>University Routine App</h1>
+    <h2>Select Semester and Section</h2>
+    <label for="semester">Select Semester:</label>
+    <select id="semester" onchange="updateSections()">
+        <option value="" disabled selected>Select Semester</option>
+    </select>
+
+    <label for="section">Select Section:</label>
+    <select id="section">
+        <option value="" disabled selected>Select Section</option>
+    </select>
+
+    <h2>Choose Day</h2>
+    <label for="day">Select Day:</label>
+    <select id="day">
+        <option value="" disabled selected>Select Day</option>
+        <option value="Sunday">Sunday</option>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+        <option value="Saturday">Saturday</option>
+    </select>
+
+    <button onclick="fetchRoutine()">Show Routine</button>
+
+    <script src="app.js"></script>
+</body>
+</html>
