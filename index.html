@@ -4,9 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>University Routine App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            margin: 10px 0;
+            padding: 8px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
     <h1>University Routine App</h1>
+
     <h2>Select Semester and Section</h2>
     <label for="semester">Select Semester:</label>
     <select id="semester" onchange="updateSections()">
@@ -27,11 +73,37 @@
         <option value="Tuesday">Tuesday</option>
         <option value="Wednesday">Wednesday</option>
         <option value="Thursday">Thursday</option>
-        <option value="Friday">Friday</option>
-        <option value="Saturday">Saturday</option>
     </select>
 
     <button onclick="fetchRoutine()">Show Routine</button>
+
+    <h2>Search Teacher's Routine</h2>
+    <label for="teacher-initial">Enter Teacher's Initial:</label>
+    <input type="text" id="teacher-initial" placeholder="e.g., SHR">
+    <label for="teacher-day">Select Day:</label>
+    <select id="teacher-day">
+        <option value="" disabled selected>Select Day</option>
+        <option value="Sunday">Sunday</option>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+    </select>
+    <button onclick="fetchTeacherRoutine()">Search</button>
+
+    <h2>Search Teacher Information</h2>
+    <label for="teacher-info-initial">Enter Teacher's Initial:</label>
+    <input type="text" id="teacher-info-initial" placeholder="e.g., SHR">
+    <button onclick="fetchTeacherInfo()">Search</button>
+
+    <h2>Search Classroom Information</h2>
+    <label for="classroom-initial">Enter Lab/Room Initial:</label>
+    <input type="text" id="classroom-initial" placeholder="e.g., NL">
+    <button onclick="fetchLabInfo()">Search</button>
+
+    <div id="results">
+        <!-- Dynamic results will be displayed here -->
+    </div>
 
     <script src="app.js"></script>
 </body>
