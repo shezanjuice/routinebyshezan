@@ -1,136 +1,86 @@
 const sheetId = "1vJQVPX0-YypjwBAoiFcMNofKR91X8Zt57NAKlXrUre4";
 const apiKey = "a5385f05f1e3a26ce479b88f150164478f5d2462";
 const routineRange = "Routine!A1:Z1000";
-define labRange = "Labs!A1:E100";
-define teacherRange = "Teachers!A1:E100";
 
-let routineData = [];
-let labData = [];
-let teacherData = [];
-
-async function fetchData(range) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+async function fetchRoutineData() {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${routineRange}?key=${apiKey}`;
     const response = await fetch(url);
-    const result = await response.json();
-    return result.values || [];
-}
-
-async function init() {
-    routineData = await fetchData(routineRange);
-    labData = await fetchData(labRange);
-    teacherData = await fetchData(teacherRange);
-    populateSemesters();
-}
-
-function populateSemesters() {
-    const semesterSelect = document.getElementById("semester");
-    const semesters = [...new Set(routineData.map(row => row[0]))];
-    semesters.forEach(semester => {
-        const option = document.createElement("option");
-        option.value = semester;
-        option.textContent = semester;
-        semesterSelect.appendChild(option);
-    });
-}
-
-function updateSections() {
-    const semester = document.getElementById("semester").value;
-    const sectionSelect = document.getElementById("section");
-    sectionSelect.innerHTML = '<option value="" disabled selected>Select Section</option>';
-
-    const sections = [...new Set(routineData.filter(row => row[0] === semester).map(row => row[1]))];
-    sections.forEach(section => {
-        const option = document.createElement("option");
-        option.value = section;
-        option.textContent = section;
-        sectionSelect.appendChild(option);
-    });
-}
-
-function fetchRoutine() {
-    const semester = document.getElementById("semester").value;
-    const section = document.getElementById("section").value;
-    const day = document.getElementById("day").value;
-
-    const results = routineData.filter(row => row[0] === semester && row[1] === section && row[2] === day);
-    displayResults(results, "Routine");
-}
-
-function fetchTeacherRoutine() {
-    const initial = document.getElementById("teacher-initial").value.toUpperCase();
-    const day = document.getElementById("teacher-day").value;
-
-    const results = routineData.filter(row => row.includes(initial) && row[2] === day);
-    displayResults(results, "Teacher's Routine");
-}
-
-function fetchTeacherInfo() {
-    const teacherInitial = document.getElementById("teacher-info-initial").value.toUpperCase();
-    const teacher = teacherData.find(row => row[0] === teacherInitial);
-
-    if (teacher) {
-        displayInfo("Teacher Information", {
-            "Name": teacher[1],
-            "Designation": teacher[2],
-            "Department": teacher[3],
-            "Contact No": teacher[4]
-        });
-    } else {
-        displayError("No teacher information found for the given initial.");
+    const data = await response.json();
+    if (!data.values) {
+      throw new Error("No data available from the sheet.");
     }
+    return data.values;
+  } catch (error) {
+    console.error("Error fetching routine data:", error);
+    alert("Failed to load routine data. Please try again later.");
+    return [];
+  }
 }
 
-function fetchLabInfo() {
-    const labInitial = document.getElementById("classroom-initial").value.toUpperCase();
-    const lab = labData.find(row => row[0] === labInitial);
+function populateSelectOptions(data) {
+  const semesterSet = new Set();
+  const sectionSet = new Set();
+  const daysSet = new Set();
 
-    if (lab) {
-        displayInfo("Lab Information", {
-            "Lab Name": lab[1],
-            "Room No": lab[2],
-            "Executive Officer": lab[3],
-            "Contact No": lab[4]
-        });
-    } else {
-        displayError("No lab information found for the given initial.");
-    }
+  data.forEach((row, index) => {
+    if (index === 0) return; // Skip headers
+    if (row[0]) daysSet.add(row[0]);
+    if (row[1]) semesterSet.add(row[1]);
+    if (row[2]) sectionSet.add(row[2]);
+  });
+
+  populateDropdown("semesterSelect", Array.from(semesterSet));
+  populateDropdown("sectionSelect", Array.from(sectionSet));
+  populateDropdown("daySelect", Array.from(daysSet));
 }
 
-function displayResults(results, title) {
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = `<h2>${title}</h2>`;
-
-    if (results.length === 0) {
-        resultsDiv.innerHTML += "<p>No data found.</p>";
-        return;
-    }
-
-    const table = document.createElement("table");
-    results.forEach(row => {
-        const tr = document.createElement("tr");
-        row.forEach(cell => {
-            const td = document.createElement("td");
-            td.textContent = cell;
-            tr.appendChild(td);
-        });
-        table.appendChild(tr);
-    });
-
-    resultsDiv.appendChild(table);
+function populateDropdown(elementId, options) {
+  const select = document.getElementById(elementId);
+  select.innerHTML = options
+    .map((option) => `<option value="${option}">${option}</option>`)
+    .join("");
 }
 
-function displayInfo(title, info) {
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = `<h2>${title}</h2>`;
+async function displayRoutine() {
+  const semester = document.getElementById("semesterSelect").value;
+  const section = document.getElementById("sectionSelect").value;
+  const day = document.getElementById("daySelect").value;
 
-    for (const [key, value] of Object.entries(info)) {
-        resultsDiv.innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
-    }
+  if (!semester || !section || !day) {
+    alert("Please select Semester, Section, and Day.");
+    return;
+  }
+
+  const rows = await fetchRoutineData();
+  const headers = rows[0];
+  const filteredRows = rows.filter(
+    (row) => row[0] === day && row[1] === semester && row[2] === section
+  );
+
+  const table = document.getElementById("routineTable");
+  if (filteredRows.length > 0) {
+    table.innerHTML = `
+      <thead>
+        <tr>${headers.map((header) => `<th>${header}</th>`).join("")}</tr>
+      </thead>
+      <tbody>
+        ${filteredRows
+          .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
+          .join("")}
+      </tbody>
+    `;
+  } else {
+    table.innerHTML = `<tr><td colspan="${headers.length}">No routine found for the selected criteria.</td></tr>`;
+  }
 }
 
-function displayError(message) {
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = `<p>${message}</p>`;
+async function initializeApp() {
+  const data = await fetchRoutineData();
+  if (data.length > 0) {
+    populateSelectOptions(data);
+  }
 }
 
-init();
+document.getElementById("viewRoutineBtn").addEventListener("click", displayRoutine);
+initializeApp();
